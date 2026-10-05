@@ -1,0 +1,8 @@
+{
+  "name": "robot-sim",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node sim.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "mqtt": "^5.10.0" }
+}

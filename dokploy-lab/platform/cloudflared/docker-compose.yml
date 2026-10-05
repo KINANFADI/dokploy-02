@@ -1,0 +1,20 @@
+# Cloudflare Tunnel: gives your private Dokploy server public hostnames without opening ports.
+# 1. Cloudflare Zero Trust -> Networks -> Tunnels -> Create tunnel -> copy the token.
+# 2. Put it in Dokploy Environment as TUNNEL_TOKEN and deploy.
+# 3. Add public hostnames in Cloudflare, for example:
+#      hooks.company.com -> http://dokploy:3000          (GitHub webhooks to the panel)
+#      app.company.com   -> http://dokploy-traefik:80    (apps routed by Traefik)
+#    Protect hooks.company.com with Cloudflare Access, bypassing only /api/deploy/*.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    restart: unless-stopped
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in the Environment tab}
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true

@@ -1,0 +1,8 @@
+{
+  "name": "fleet-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node server.js", "prune": "node prune.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "mqtt": "^5.10.0", "pg": "^8.13.0" }
+}

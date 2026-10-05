@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab shop</title>
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body>
+<div id="env-bar"></div>
+<main>
+  <header>
+    <h1>Lab shop</h1>
+    <p id="build" class="muted">Loading build info…</p>
+  </header>
+
+  <section>
+    <h2>Place an order</h2>
+    <p class="muted">The API saves it to Postgres and queues it in Redis. The worker marks it done.</p>
+    <form id="order-form">
+      <input id="item" placeholder="What are you ordering?" maxlength="100" required>
+      <button type="submit">Place order</button>
+    </form>
+    <table>
+      <thead><tr><th>#</th><th>Item</th><th>Status</th><th>Done by</th></tr></thead>
+      <tbody id="orders"><tr><td colspan="4" class="muted">No orders yet.</td></tr></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Save a note</h2>
+    <p class="muted">Notes are files on the API's volume. They should survive redeploys and restores.</p>
+    <form id="note-form">
+      <input id="note" placeholder="Write something to keep" maxlength="500" required>
+      <button type="submit">Save note</button>
+    </form>
+    <ul id="notes"></ul>
+  </section>
+
+  <section>
+    <h2>API status</h2>
+    <pre id="status">Waiting for the API…</pre>
+  </section>
+  <p id="message" role="status" aria-live="polite"></p>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

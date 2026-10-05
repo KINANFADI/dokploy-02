@@ -1,0 +1,24 @@
+# Copy into Dokploy -> Traefik File System -> dynamic/lab-middlewares.yml
+# Then reference a middleware from an app's router, e.g.  middlewares: ["lab-ratelimit@file"]
+http:
+  middlewares:
+    # Max ~5 requests/second per client, short bursts up to 10. Extra requests get HTTP 429.
+    lab-ratelimit:
+      rateLimit:
+        average: 5
+        burst: 10
+
+    # Only Tailscale devices (and the server itself) may pass. Others get HTTP 403.
+    lab-tailscale-only:
+      ipAllowList:
+        sourceRange:
+          - "100.64.0.0/10"
+          - "127.0.0.1/32"
+
+    # Basic security headers for public sites.
+    lab-security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"

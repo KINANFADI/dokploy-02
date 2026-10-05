@@ -1,0 +1,8 @@
+{
+  "name": "lab-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node worker.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "^8.13.0", "redis": "^4.7.0" }
+}

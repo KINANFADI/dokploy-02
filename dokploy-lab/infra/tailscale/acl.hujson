@@ -1,0 +1,23 @@
+// Example Tailscale policy for the company. Paste into Tailscale admin -> Access controls, then adapt.
+{
+  "groups": {
+    "group:head":      ["head@company.com"],
+    "group:devops":    ["devops@company.com"],
+    "group:engineers": ["backend@company.com", "frontend@company.com", "robotics@company.com"]
+  },
+  "tagOwners": {
+    "tag:server-office": ["group:devops"],
+    "tag:server-vps":    ["group:devops"],
+    "tag:robot":         ["group:devops"]
+  },
+  "acls": [
+    // DevOps and the Head of Software reach everything.
+    {"action": "accept", "src": ["group:devops", "group:head"], "dst": ["*:*"]},
+    // Engineers reach both servers (panel, staging, SSH).
+    {"action": "accept", "src": ["group:engineers"], "dst": ["tag:server-office:*", "tag:server-vps:*"]},
+    // Robots reach only the MQTT broker on the office server. Nothing else.
+    {"action": "accept", "src": ["tag:robot"], "dst": ["tag:server-office:1883,8883"]},
+    // The office server may deploy to the VPS over SSH.
+    {"action": "accept", "src": ["tag:server-office"], "dst": ["tag:server-vps:22"]}
+  ]
+}

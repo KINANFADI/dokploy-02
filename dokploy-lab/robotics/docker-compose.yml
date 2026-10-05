@@ -1,0 +1,64 @@
+# Robotics stack: MQTT broker + fleet API/dashboard + telemetry DB + robot simulator.
+# Deploy twice in Dokploy: once as "sim" (MQTT_PORT=1884) and once as "production" (MQTT_PORT=1883).
+# MQTT is not web traffic, so it is published as a port. Keep MQTT_BIND on 127.0.0.1 in the lab,
+# and on the server's Tailscale IP (100.x.y.z) for real robots. Never 0.0.0.0 on a public server.
+services:
+  broker:
+    build: ./broker
+    restart: unless-stopped
+    ports:
+      - "${MQTT_BIND:-127.0.0.1}:${MQTT_PORT:-1883}:1883"
+    volumes:
+      - broker-data:/mosquitto/data
+
+  telemetry-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fleet
+      POSTGRES_PASSWORD: ${TELEMETRY_DB_PASSWORD:-fleet}
+      POSTGRES_DB: fleet
+    volumes:
+      - telemetry-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet -d fleet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  fleet-api:
+    build: ./fleet-api
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      MQTT_URL: mqtt://broker:1883
+      DATABASE_URL: postgres://fleet:${TELEMETRY_DB_PASSWORD:-fleet}@telemetry-db:5432/fleet
+      FLEET_NAME: ${FLEET_NAME:-Lab fleet}
+      OFFLINE_AFTER_SEC: ${OFFLINE_AFTER_SEC:-15}
+      PRUNE_HOURS: ${PRUNE_HOURS:-24}
+      DATA_DIR: /data
+    volumes:
+      - fleet-data:/data
+    depends_on:
+      telemetry-db:
+        condition: service_healthy
+      broker:
+        condition: service_started
+
+  robot-sim:
+    build: ./robot-sim
+    restart: unless-stopped
+    environment:
+      MQTT_URL: mqtt://broker:1883
+      ROBOT_COUNT: ${ROBOT_COUNT:-5}
+      ROBOT_PREFIX: ${ROBOT_PREFIX:-R}
+      FAULTY_ROBOT: ${FAULTY_ROBOT:-}
+    depends_on:
+      broker:
+        condition: service_started
+
+volumes:
+  broker-data:
+  telemetry-data:
+  fleet-data:
