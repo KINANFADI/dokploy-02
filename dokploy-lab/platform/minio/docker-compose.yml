@@ -2,7 +2,7 @@ services:
   minio:
     image: bitnamilegacy/minio:latest
     restart: unless-stopped
-          user: root
+    user: root
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-labadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-ChangeMe-minio-123}
